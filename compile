@@ -1,0 +1,2 @@
+g++ -Wall -c functions.h functions.cpp main.cpp
+g++ -Wall functions.o main.o -o galaga -lsfml-graphics -lsfml-window -lsfml-system
