@@ -1,8 +1,11 @@
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 class Bullet;
+class Enemy;
 class Ship
 {
+    friend void placeEnemies(std::vector <Enemy> &ea);
 protected:
     int _x;
     int _y;
@@ -18,44 +21,50 @@ public:
     void setY(int y);
     int x();
     int y();
-    bool collision(Ship);
-    bool collision(Bullet);
+    bool collision(Ship*);
+    bool collision(Bullet*);
     void move(char dir);
 };
 class Enemy :public Ship
 {
-    friend void moveEnemies(Enemy ea[]);
-    friend void placeEnemies(Enemy ea[]);
+    friend void moveEnemies(std::vector <Enemy> &ea);
+    friend void placeEnemies(std::vector <Enemy> &ea);
     bool _ifAttack;
+    bool _ifShoot;
     static int _dx;
     static int _dy;
 public:
+    bool active;
     static int number;
-    static int width;
-    static int height;
     Enemy(int __x=500, int __y=600, int __dx=1, int __dy=1);
     ~Enemy();
     void decideIfAttack();
     bool ifAttack();
     void attack();
+    void decideIfShoot();
+    bool ifShoot();
 };
 class Bullet
 {
-    int _x,_y,_dy;
-    Ship owner;
+    int _dy;
 public:
-    Bullet(Ship, int __dy=1);
+    Bullet(Ship*, int __dy=1);
+    Bullet(Enemy*, int __dy=1);
     ~Bullet();
+    Ship* owner;
+    int _x,_y;
     static int number;
     static int width;
     static int height;
+    bool active;
     int x();
     int y();
-    void move();
+    void move(char dir);
     bool ifHit(Ship);
 };
-void moveEnemies(Enemy ea[]);
+void moveEnemies(std::vector <Enemy> &ea);
 void addHp();
-void lookForHits(Ship s, Enemy ea[]);
-void lookForHits(Bullet ba[], Ship sa[]);
-void placeEnemies(Enemy ea[]);
+void lookForHits(Ship* s, std::vector <Enemy> &ea);
+void lookForHits(std::vector <Bullet*> &ba, std::vector <Enemy> &sa);
+void lookForHits(Ship* s,std::vector <Bullet*> &ba);
+void placeEnemies(std::vector <Enemy> &ea);

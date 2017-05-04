@@ -1,4 +1,5 @@
 #include "functions.h"
+#include <iostream>
 extern const int WIDTH;
 extern const int HEIGHT;
 int Enemy::number;
@@ -7,15 +8,27 @@ int Enemy::_dy;
 int Bullet::number;
 int Ship::number;
 int hp;
-int points;
-Bullet::Bullet(Ship s, int __dy)
+unsigned int points;
+Bullet::Bullet(Ship* s, int __dy)
 {
     owner=s;
     _dy=__dy;
-    _x=owner.x();
-    _y=owner.y();
+    _x=owner->x()+width/2;
+    _y=owner->y()-owner->height;
+    active=1;
     number++;
 }
+
+Bullet::Bullet(Enemy* s, int __dy)
+{
+    owner=s;
+    _dy=__dy;
+    _x=owner->x()+width/2;
+    _y=owner->y()+owner->height;
+    active=1;
+    number++;
+}
+
 Bullet::~Bullet()
 {
     number--;
@@ -28,9 +41,10 @@ int Bullet::y()
 {
     return _y;
 }
-void Bullet::move()
+void Bullet::move(char dir)
 {
-    _y+=_dy;
+    if(dir=='U') _y-=1;
+    else if(dir=='D') _y+=1;
 }
 
 Ship::Ship(int __x,int __y, int __dx)
@@ -52,13 +66,13 @@ int Ship::y()
 {
     return _y;
 }
-bool Ship::collision(Ship s)
+bool Ship::collision(Ship* s)
 {
-    return x()==s.x() && y()==s.y();
+    return s->x()+s->width>=x() && s->x()<=x()+width && s->y()<=y()+height && s->y()+s->height>=y();
 }
-bool Ship::collision(Bullet b)
+bool Ship::collision(Bullet* b)
 {
-    return x()==b.x() && y()==b.y();
+    return b->x()+b->width>=x() && b->x()<=x()+width && b->y()<=y()+height && b->y()+b->height>=y();
 }
 void Ship::move(char dir)
 {
@@ -67,7 +81,7 @@ void Ship::move(char dir)
 }
 Bullet* Ship::shoot()
 {
-    Bullet* b=new Bullet(*this);
+    Bullet* b=new Bullet(this);
     return b;
 }
 void Ship::setX(int x)
@@ -85,6 +99,7 @@ Enemy::Enemy(int __x, int __y, int __dx, int __dy)
     _dx=__dx;
     _dy=__dy;
     _ifAttack=0;
+    active=1;
     number++;
 }
 Enemy::~Enemy()
@@ -99,12 +114,17 @@ bool Enemy::ifAttack()
 {
     return _ifAttack;
 }
-
-void moveEnemies(Enemy ea[])
+bool Enemy::ifShoot()
 {
-    if(ea[Enemy::number-1].x()>=WIDTH || ea[0].x()<=0) Enemy::_dx*=-1;
-    for(Enemy* e=ea ; e!=ea+Enemy::number ; e++)
-        e->_x += Enemy::_dx;
+    return rand()%10000<5;
+}
+void moveEnemies(std::vector <Enemy> &ea)
+{
+    for(unsigned int i=0; i<ea.size(); i++)
+    {
+        if(ea[i].x() + Enemy::width>=WIDTH || ea[i].x()<=-10) Enemy::_dx*=-1;
+        ea[i]._x+=Enemy::_dx;
+    }
 }
 
 void addHp()
@@ -112,33 +132,49 @@ void addHp()
     if(points>0 && points%20==0) hp++;
 }
 
-void lookForHits(Ship& s, Enemy ea[])
+void lookForHits(Ship* s, std::vector <Enemy> &ea)
 {
-    for(Enemy *e=ea; e!=ea+Enemy::number ; e++)
-        if(s.collision(*e))
+    for(std::vector <Enemy>::iterator e=ea.begin(); e!=ea.end(); e++)
     {
-        hp=0;
-        s.~Ship();
-        return;
+        if(s->collision(&*e) && e->active)
+        {
+            hp--;
+        }
     }
 }
 
-void lookForHits(Bullet ba[],Ship sa[])
+void lookForHits(std::vector <Bullet*> &ba,std::vector <Enemy> &sa)
 {
-    for(Ship *s=sa; s!=sa+Ship::number; s++)
-        for(Bullet *b=ba; b!=ba+Bullet::number; b++)
-        if(s->collision(*b))
+    for(std::vector<Enemy>::iterator s=sa.begin(); s!=sa.end(); s++)
+        for(std::vector <Bullet*>::iterator b=ba.begin(); b!=ba.end(); b++)
+        {
+            if(s->collision(*b) && (*b)->active && s->active)
+            {
+                (*b)->active=0;
+                s->active=0;
+                points++;
+            }
+            if((*b)->y()+(*b)->height<0) (*b)->active=0;
+        }
+}
+void placeEnemies(std::vector <Enemy> &ea)
+{
+    unsigned int i=0;
+    while(i<ea.size())
     {
-        s->~Ship();
-        b->~Bullet();
+        ea[i]._x=i*WIDTH/ea.size();
+        ea[i]._y=20;
+        i++;
     }
 }
-void placeEnemies(Enemy ea[])
+void lookForHits(Ship* s,std::vector<Bullet*> &ba)
 {
-    int i=0;
-    for(Enemy* e=ea;e<ea+Enemy::number;e++,i++)
+    for(std::vector <Bullet*>::iterator b=ba.begin(); b!=ba.end(); b++)
     {
-        if(e) e->_x=WIDTH/(i+1);
-        if(e) e->_y=HEIGHT+10;
+        if(s->collision(*b) && ((*b)->active))
+        {
+            hp--;
+            (*b)->active=0;
+        }
     }
 }

@@ -1,0 +1,32 @@
+# depslib dependency file v1.0
+1493378845 source:c:\users\tytjan17\documents\programowanie\galaga\functions.cpp
+	"functions.h"
+
+1493378845 .h"
+
+1493378785 c:\users\tytjan17\documents\programowanie\galaga\functions.h
+	<cstdlib>
+	<ctime>
+	<list>
+
+1493331028 
+
+1493331028 source:c:\users\tytjan17\documents\programowanie\galaga\main.cpp
+	"functions.h"
+	<iostream>
+
+1493868462 source:/home/tytjan17/Projekty/galaga/functions.cpp
+	"functions.h"
+	<iostream>
+
+1493868462 /home/tytjan17/Projekty/galaga/functions.h
+	<cstdlib>
+	<ctime>
+	<vector>
+
+1493868407 source:/home/tytjan17/Projekty/galaga/main.cpp
+	"functions.h"
+	<iostream>
+	<SFML/Window.hpp>
+	<SFML/Graphics.hpp>
+
