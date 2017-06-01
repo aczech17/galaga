@@ -387,3 +387,13 @@ void Game::load(std::string index)
     enemyCount=6-points%6;
     saveStream.close();
 }
+void menu(sf::RenderWindow* win)
+{
+    sf::Font font;
+    std::string err="Font loading error";
+    if(!font.loadFromFile("arial.ttf")) throw err;
+    sf::Text text;
+    text.setFont(font);
+    text.setString("Cyfra 0-9 - Wczytanie gry\nEscape - Wyjscie\nCokolwiek innego - Nowa gra");
+    win->draw(text);
+}

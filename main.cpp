@@ -44,8 +44,14 @@ int main()
                 game.play();
             }
         }//eventy
-        cout<<indexStr;
         win.clear(sf::Color(255,0,0));
+        try
+        {
+            menu(&win);
+        }catch(std::string s)
+        {
+            cout<<s<<endl;
+        }
         win.display();
     }//okno otwarte
 

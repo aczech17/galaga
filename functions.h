@@ -111,3 +111,4 @@ public:
 void moveEnemies(std::vector <Enemy> &ea);
 void addHp();
 void placeEnemies(std::vector <Enemy> &ea);
+void menu(sf::RenderWindow*);
